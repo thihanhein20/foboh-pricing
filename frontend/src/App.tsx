@@ -5,6 +5,7 @@ import Profiles from "./pages/Pricing/Profiles";
 import CreateProfile from "./pages/Pricing/CreateProfile";
 import Layout from "./components/Layout/Layout";
 import axiosInstance from "./services/axios";
+import ComingSoon from "./pages/ComingSoon/ComingSoon";
 
 function getCookie(name: string): string | null {
   const match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
@@ -57,6 +58,11 @@ function App() {
           }
         >
           <Route index element={<Navigate to="/pricing" />} />
+          <Route path="dashboard" element={<ComingSoon />} />
+          <Route path="orders" element={<ComingSoon />} />
+          <Route path="customers" element={<ComingSoon />} />
+          <Route path="products" element={<ComingSoon />} />
+          <Route path="settings" element={<ComingSoon />} />
           <Route path="pricing" element={<Profiles />} />
           <Route path="pricing/create" element={<CreateProfile />} />
         </Route>
