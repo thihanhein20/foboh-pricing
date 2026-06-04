@@ -4,7 +4,7 @@ const router: Router = Router();
 
 const CREDENTIALS = {
   email: "admin@foboh.com",
-  password: "foboh2024",
+  password: "foboh2026",
 };
 
 router.post("/login", (req: Request, res: Response) => {

@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 
 const CREDENTIALS = {
   email: "admin@foboh.com",
-  password: "foboh2024",
+  password: "foboh2026",
 };
 
 export function authenticate(

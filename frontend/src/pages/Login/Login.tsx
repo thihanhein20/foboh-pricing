@@ -163,7 +163,7 @@ export default function Login({ onLogin }: LoginProps) {
               Demo credentials:
             </p>
             <p className="text-xs text-gray-500">Email: admin@foboh.com</p>
-            <p className="text-xs text-gray-500">Password: foboh2024</p>
+            <p className="text-xs text-gray-500">Password: foboh2026</p>
           </div>
         </div>
       </div>
