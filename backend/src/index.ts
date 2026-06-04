@@ -5,7 +5,7 @@ import productRoutes from "./routes/products";
 import profileRoutes from "./routes/profiles";
 import authRoutes from "./routes/auth";
 import { authenticate } from "./middleware/authenticate";
-import { swaggerSpec } from "./swagger/config";
+import { swaggerSpec, swaggerUiOptions } from "./swagger/config";
 
 const app: Application = express();
 const PORT: number = 3000;
@@ -14,7 +14,11 @@ app.use(cors());
 app.use(express.json());
 
 // Swagger
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec as object));
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpec as object, swaggerUiOptions),
+);
 
 // Routes
 app.use("/auth", authRoutes);

@@ -19,7 +19,6 @@ interface Filters {
 export default function CreateProfile() {
   const navigate = useNavigate();
 
-  // Profile state
   const [name, setName] = useState("");
   const [adjustmentType, setAdjustmentType] = useState<"fixed" | "dynamic">(
     "fixed",
@@ -31,13 +30,13 @@ export default function CreateProfile() {
   const [productScope, setProductScope] = useState<
     "specific" | "category" | "all"
   >("specific");
+  const [category, setCategory] = useState("");
   const [customerScope, setCustomerScope] = useState<
     "specific" | "group" | "all"
   >("all");
   const [customerGroup, setCustomerGroup] = useState("");
   const [customerId, setCustomerId] = useState("");
 
-  // Product state
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [filters, setFilters] = useState<Filters>({
@@ -57,6 +56,7 @@ export default function CreateProfile() {
 
   async function fetchProducts() {
     try {
+      setLoading(true);
       const activeFilters = Object.fromEntries(
         Object.entries(filters).filter(([_, v]) => v !== ""),
       );
@@ -88,20 +88,26 @@ export default function CreateProfile() {
       setError("Profile name is required");
       return;
     }
-    if (productScope === "specific" && selectedIds.length === 0) {
+    if (productScope === "category" && !category) {
+      setError("Please enter a category");
+      return;
+    }
+    if (productScope !== "all" && selectedIds.length === 0) {
       setError("Please select at least one product");
       return;
     }
 
     try {
       setSaving(true);
+      setError("");
       await createProfile({
         name,
         adjustmentType,
         adjustmentDirection,
         adjustmentValue,
         productScope,
-        productIds: productScope === "specific" ? selectedIds : undefined,
+        productIds: productScope !== "all" ? selectedIds : undefined,
+        category: productScope === "category" ? category : undefined,
         customerScope,
         customerId: customerScope === "specific" ? customerId : undefined,
         customerGroup: customerScope === "group" ? customerGroup : undefined,
@@ -197,10 +203,14 @@ export default function CreateProfile() {
               <input
                 type="radio"
                 checked={productScope === scope}
-                onChange={() => setProductScope(scope)}
+                onChange={() => {
+                  setProductScope(scope);
+                  setSelectedIds([]);
+                  setCategory("");
+                }}
                 className="accent-teal-600"
               />
-              <span className="text-sm text-gray-700 capitalize">
+              <span className="text-sm text-gray-700">
                 {scope === "specific"
                   ? "Specific Products"
                   : scope === "category"
@@ -210,6 +220,25 @@ export default function CreateProfile() {
             </label>
           ))}
         </div>
+
+        {/* Category input when scope is category */}
+        {productScope === "category" && (
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Category this profile applies to
+            </label>
+            <input
+              type="text"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              placeholder="e.g. Wine Sparkling"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+            />
+            <p className="text-xs text-gray-400 mt-1">
+              Available: Wine Red, Wine Sparkling, Wine White, Wine Port/Dessert
+            </p>
+          </div>
+        )}
 
         {/* Filter */}
         <div className="mb-4">

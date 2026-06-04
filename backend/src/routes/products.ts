@@ -23,21 +23,22 @@ router.get("/", (req: Request, res: Response) => {
     }
 
     if (subCategory) {
-      filtered = filtered.filter(
-        (p) =>
-          p.subCategory.toLowerCase() === (subCategory as string).toLowerCase(),
+      filtered = filtered.filter((p) =>
+        p.subCategory
+          .toLowerCase()
+          .includes((subCategory as string).toLowerCase()),
       );
     }
 
     if (segment) {
-      filtered = filtered.filter(
-        (p) => p.segment.toLowerCase() === (segment as string).toLowerCase(),
+      filtered = filtered.filter((p) =>
+        p.segment.toLowerCase().includes((segment as string).toLowerCase()),
       );
     }
 
     if (brand) {
-      filtered = filtered.filter(
-        (p) => p.brand.toLowerCase() === (brand as string).toLowerCase(),
+      filtered = filtered.filter((p) =>
+        p.brand.toLowerCase().includes((brand as string).toLowerCase()),
       );
     }
 

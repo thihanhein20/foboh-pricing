@@ -31,10 +31,12 @@ export default function ProductList({
     );
   }
 
+  const showCheckboxes = productScope !== "all";
+
   return (
     <div>
       {/* Select all / Deselect all */}
-      {productScope === "specific" && (
+      {showCheckboxes && (
         <div className="flex gap-4 mb-3">
           <button
             onClick={onSelectAll}
@@ -61,14 +63,12 @@ export default function ProductList({
         {products.map((product) => (
           <div
             key={product.id}
-            onClick={() => productScope === "specific" && onToggle(product.id)}
+            onClick={() => showCheckboxes && onToggle(product.id)}
             className={`flex items-center gap-4 px-4 py-3 transition-colors ${
-              productScope === "specific"
-                ? "cursor-pointer hover:bg-gray-50"
-                : ""
+              showCheckboxes ? "cursor-pointer hover:bg-gray-50" : ""
             } ${selectedIds.includes(product.id) ? "bg-teal-50" : ""}`}
           >
-            {productScope === "specific" && (
+            {showCheckboxes && (
               <input
                 type="checkbox"
                 checked={selectedIds.includes(product.id)}

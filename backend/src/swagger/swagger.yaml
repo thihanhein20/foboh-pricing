@@ -7,8 +7,20 @@ info:
 servers:
   - url: http://localhost:3000
     description: Local server
+  - url: https://your-railway-url.railway.app
+    description: Production server
 
 components:
+  securitySchemes:
+    EmailAuth:
+      type: apiKey
+      in: header
+      name: email
+    PasswordAuth:
+      type: apiKey
+      in: header
+      name: password
+
   schemas:
     Product:
       type: object
@@ -93,7 +105,36 @@ components:
         error:
           type: string
 
+security:
+  - EmailAuth: []
+    PasswordAuth: []
+
 paths:
+  /auth/login:
+    post:
+      summary: Login with credentials
+      tags:
+        - Auth
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: admin@foboh.com
+                password:
+                  type: string
+                  example: foboh2024
+      responses:
+        "200":
+          description: Login successful
+        "401":
+          description: Invalid credentials
+
   /products:
     get:
       summary: Get all products with optional filters
