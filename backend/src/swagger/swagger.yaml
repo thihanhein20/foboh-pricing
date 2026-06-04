@@ -1,0 +1,365 @@
+openapi: 3.0.0
+info:
+  title: FOBOH Pricing API
+  version: 1.0.0
+  description: API for managing customer specific pricing profiles for food and beverage wholesalers
+
+servers:
+  - url: http://localhost:3000
+    description: Local server
+
+components:
+  schemas:
+    Product:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        sku:
+          type: string
+        brand:
+          type: string
+        subCategory:
+          type: string
+        segment:
+          type: string
+        basePrice:
+          type: number
+
+    PricingProfile:
+      type: object
+      required:
+        - name
+        - adjustmentType
+        - adjustmentDirection
+        - adjustmentValue
+        - productScope
+        - customerScope
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        adjustmentType:
+          type: string
+          enum: [fixed, dynamic]
+        adjustmentDirection:
+          type: string
+          enum: [increase, decrease]
+        adjustmentValue:
+          type: number
+        productScope:
+          type: string
+          enum: [specific, category, all]
+        productIds:
+          type: array
+          items:
+            type: string
+        category:
+          type: string
+        customerScope:
+          type: string
+          enum: [specific, group, all]
+        customerId:
+          type: string
+        customerGroup:
+          type: string
+        createdAt:
+          type: string
+
+    PriceResolution:
+      type: object
+      properties:
+        customerId:
+          type: string
+        productId:
+          type: string
+        originalPrice:
+          type: number
+        resolvedPrice:
+          type: number
+        appliedProfileId:
+          type: string
+        appliedProfileName:
+          type: string
+        reason:
+          type: string
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+
+paths:
+  /products:
+    get:
+      summary: Get all products with optional filters
+      tags:
+        - Products
+      parameters:
+        - in: query
+          name: title
+          schema:
+            type: string
+          description: Filter by product title
+        - in: query
+          name: sku
+          schema:
+            type: string
+          description: Filter by SKU
+        - in: query
+          name: subCategory
+          schema:
+            type: string
+          description: Filter by sub category
+        - in: query
+          name: segment
+          schema:
+            type: string
+          description: Filter by segment
+        - in: query
+          name: brand
+          schema:
+            type: string
+          description: Filter by brand
+      responses:
+        "200":
+          description: List of products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /products/{id}:
+    get:
+      summary: Get a single product by ID
+      tags:
+        - Products
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Product ID
+      responses:
+        "200":
+          description: Product found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "404":
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /profiles:
+    get:
+      summary: Get all pricing profiles
+      tags:
+        - Profiles
+      responses:
+        "200":
+          description: List of pricing profiles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PricingProfile"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    post:
+      summary: Create a new pricing profile
+      tags:
+        - Profiles
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PricingProfile"
+      responses:
+        "201":
+          description: Profile created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PricingProfile"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /profiles/{id}:
+    get:
+      summary: Get a single pricing profile by ID
+      tags:
+        - Profiles
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Profile ID
+      responses:
+        "200":
+          description: Profile found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PricingProfile"
+        "404":
+          description: Profile not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    put:
+      summary: Update a pricing profile
+      tags:
+        - Profiles
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Profile ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PricingProfile"
+      responses:
+        "200":
+          description: Profile updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PricingProfile"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Profile not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    delete:
+      summary: Delete a pricing profile
+      tags:
+        - Profiles
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Profile ID
+      responses:
+        "204":
+          description: Profile deleted
+        "404":
+          description: Profile not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /profiles/resolve/{customerId}/{productId}:
+    get:
+      summary: Resolve the final price for a customer and product
+      tags:
+        - Profiles
+      parameters:
+        - in: path
+          name: customerId
+          required: true
+          schema:
+            type: string
+          description: Customer ID
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: string
+          description: Product ID
+      responses:
+        "200":
+          description: Resolved price with source profile and reason
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PriceResolution"
+        "404":
+          description: Customer or product not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
