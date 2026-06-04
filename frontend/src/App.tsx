@@ -4,10 +4,19 @@ import Login from "./pages/Login/Login";
 import Profiles from "./pages/Pricing/Profiles";
 import CreateProfile from "./pages/Pricing/CreateProfile";
 import Layout from "./components/Layout/Layout";
+import axiosInstance from "./services/axios";
 
 function getCookie(name: string): string | null {
   const match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
   return match ? match[2] : null;
+}
+
+// Restore headers on app load
+const savedEmail = getCookie("userEmail");
+const savedPassword = getCookie("userPassword");
+if (savedEmail && savedPassword) {
+  axiosInstance.defaults.headers.common["email"] = savedEmail;
+  axiosInstance.defaults.headers.common["password"] = savedPassword;
 }
 
 function App() {
@@ -17,6 +26,10 @@ function App() {
 
   function handleLogout() {
     document.cookie = "isAuthenticated=false; path=/; max-age=0";
+    document.cookie = "userEmail=; path=/; max-age=0";
+    document.cookie = "userPassword=; path=/; max-age=0";
+    axiosInstance.defaults.headers.common["email"] = "";
+    axiosInstance.defaults.headers.common["password"] = "";
     setIsLoggedIn(false);
   }
 

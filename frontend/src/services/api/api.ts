@@ -5,14 +5,15 @@ import type { Product, PricingProfile } from "../../types";
 export const login = async (email: string, password: string): Promise<void> => {
   await axiosInstance.post("/auth/login", { email, password });
 
-  // Store credentials for subsequent requests
+  // Store credentials in axios headers
   axiosInstance.defaults.headers.common["email"] = email;
   axiosInstance.defaults.headers.common["password"] = password;
 
-  // Set auth cookie
-  document.cookie = "isAuthenticated=true; path=/; max-age=86400";
+  // Store in cookie so they persist on refresh
+  document.cookie = `isAuthenticated=true; path=/; max-age=86400`;
+  document.cookie = `userEmail=${email}; path=/; max-age=86400`;
+  document.cookie = `userPassword=${password}; path=/; max-age=86400`;
 };
-
 // Products
 export const getProducts = async (filters?: {
   title?: string;
