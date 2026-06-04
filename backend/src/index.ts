@@ -3,6 +3,8 @@ import cors from "cors";
 import swaggerUi from "swagger-ui-express";
 import productRoutes from "./routes/products";
 import profileRoutes from "./routes/profiles";
+import authRoutes from "./routes/auth";
+import { authenticate } from "./middleware/authenticate";
 import { swaggerSpec } from "./swagger/config";
 
 const app: Application = express();
@@ -15,8 +17,9 @@ app.use(express.json());
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec as object));
 
 // Routes
-app.use("/products", productRoutes);
-app.use("/profiles", profileRoutes);
+app.use("/auth", authRoutes);
+app.use("/products", authenticate, productRoutes);
+app.use("/profiles", authenticate, profileRoutes);
 
 // Health check
 app.get("/health", (req: Request, res: Response) => {
