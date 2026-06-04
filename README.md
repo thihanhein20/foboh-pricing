@@ -6,6 +6,16 @@ A fullstack pricing profile management app for food and beverage wholesalers. Bu
 
 Suppliers can create customer-specific pricing profiles, apply fixed or dynamic price adjustments, and resolve the effective price when multiple profiles overlap for the same customer and product.
 
+## Live Demo
+
+|              | URL                                               |
+| ------------ | ------------------------------------------------- |
+| Frontend     | https://foboh-pricing.vercel.app                  |
+| API          | https://api-foboh-pricing.up.railway.app          |
+| Swagger Docs | https://api-foboh-pricing.up.railway.app/api-docs |
+
+> **Note:** The backend is hosted on Railway's free tier which hibernates after inactivity. If the app feels slow on first load, wait 10-15 seconds for the server to wake up. Because the store is in-memory, any profiles created before hibernation will be reset. Use the seed profiles described in the test guide to get started quickly.
+
 ## Tech Stack
 
 **Backend**
@@ -173,4 +183,4 @@ foboh-pricing/
 
 ## AI Transcript
 
-Full Claude.ai conversation transcript: [link here]
+Full Claude.ai conversation transcript: https://claude.ai/share/0dc1ac33-b979-4e32-a4f9-b4de40fa9de3
