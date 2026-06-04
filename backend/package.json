@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon --exec ts-node src/index.ts",
-    "build": "tsc",
+    "build": "tsc && cp src/swagger/swagger.yaml dist/swagger/swagger.yaml",
     "start": "node dist/index.js"
   },
   "keywords": [],
