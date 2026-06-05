@@ -1,4 +1,5 @@
 import { AdjustmentType, AdjustmentDirection } from "../models/types";
+import { products } from "../data/seed";
 
 const validAdjustmentTypes: AdjustmentType[] = ["fixed", "dynamic"];
 const validAdjustmentDirections: AdjustmentDirection[] = [
@@ -57,6 +58,15 @@ const validationRules: ValidationRule[] = [
   {
     check: (body) => body.customerScope === "group" && !body.customerGroup,
     message: "customerGroup is required when customerScope is group",
+  },
+  {
+    check: (body) =>
+      body.productScope === "specific" &&
+      Array.isArray(body.productIds) &&
+      body.productIds.some(
+        (id: string) => !products.find((p) => p.id === id),
+      ),
+    message: "one or more productIds do not exist",
   },
 ];
 

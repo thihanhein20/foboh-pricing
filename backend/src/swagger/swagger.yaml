@@ -94,8 +94,13 @@ components:
           type: number
         appliedProfileId:
           type: string
+          nullable: true
         appliedProfileName:
           type: string
+        profileScore:
+          type: integer
+          nullable: true
+          description: "(customerScore × 10) + productScore. null when no profile matched."
         reason:
           type: string
 
@@ -128,7 +133,7 @@ paths:
                   example: admin@foboh.com
                 password:
                   type: string
-                  example: foboh2024
+                  example: foboh2026
       responses:
         "200":
           description: Login successful
@@ -297,7 +302,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
-    put:
+    patch:
       summary: Update a pricing profile
       tags:
         - Profiles

@@ -53,7 +53,7 @@ export const updateProfile = async (
   id: string,
   profile: Partial<PricingProfile>,
 ): Promise<PricingProfile> => {
-  const response = await axiosInstance.put(`/profiles/${id}`, profile);
+  const response = await axiosInstance.patch(`/profiles/${id}`, profile);
   return response.data;
 };
 
@@ -65,5 +65,10 @@ export const resolvePrice = async (customerId: string, productId: string) => {
   const response = await axiosInstance.get(
     `/profiles/resolve/${customerId}/${productId}`,
   );
+  return response.data;
+};
+
+export const resolveAllForCustomer = async (customerId: string) => {
+  const response = await axiosInstance.get(`/profiles/resolve/${customerId}`);
   return response.data;
 };

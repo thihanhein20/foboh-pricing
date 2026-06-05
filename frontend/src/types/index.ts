@@ -22,3 +22,42 @@ export interface Product {
   segment: string;
   basePrice: number;
 }
+
+export interface ProfileFormValues {
+  name: string;
+  adjustmentType: "fixed" | "dynamic";
+  adjustmentDirection: "increase" | "decrease";
+  adjustmentValue: number;
+  productScope: "specific" | "category" | "all";
+  productIds?: string[];
+  category?: string;
+  customerScope: "specific" | "group" | "all";
+  customerId?: string;
+  customerGroup?: string;
+}
+
+export interface ProductFilters {
+  title: string;
+  sku: string;
+  subCategory: string;
+  segment: string;
+  brand: string;
+}
+
+export interface Customer {
+  id: string;
+  name: string;
+  groups: string[];
+}
+
+export interface PriceResolution {
+  customerId: string;
+  productId: string;
+  originalPrice: number;
+  resolvedPrice: number;
+  appliedProfileId: string | null;
+  appliedProfileName: string;
+  customerScope: "specific" | "group" | "all" | null;
+  profileScore: number | null;
+  reason: string;
+}

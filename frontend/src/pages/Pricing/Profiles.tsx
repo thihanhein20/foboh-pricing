@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import { getProfiles, deleteProfile } from "../../services/api/api";
 import type { PricingProfile } from "../../types";
 import ResolveModal from "../../components/ResolveModal/ResolveModal";
@@ -20,7 +21,11 @@ export default function Profiles() {
       const data = await getProfiles();
       setProfiles(data);
     } catch (err) {
-      setError("Failed to load profiles");
+      setError(
+        axios.isAxiosError(err)
+          ? (err.response?.data?.error ?? "Failed to load profiles")
+          : "Failed to load profiles",
+      );
     } finally {
       setLoading(false);
     }
@@ -31,7 +36,11 @@ export default function Profiles() {
       await deleteProfile(id);
       setProfiles(profiles.filter((p) => p.id !== id));
     } catch (err) {
-      setError("Failed to delete profile");
+      setError(
+        axios.isAxiosError(err)
+          ? (err.response?.data?.error ?? "Failed to delete profile")
+          : "Failed to delete profile",
+      );
     }
   }
 
@@ -153,12 +162,20 @@ export default function Profiles() {
                     {new Date(profile.createdAt).toLocaleDateString()}
                   </td>
                   <td className="px-6 py-4">
-                    <button
-                      onClick={() => handleDelete(profile.id)}
-                      className="text-red-400 hover:text-red-600 text-xs transition-colors"
-                    >
-                      Delete
-                    </button>
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => navigate(`/pricing/edit/${profile.id}`)}
+                        className="text-teal-600 hover:text-teal-800 text-xs transition-colors"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(profile.id)}
+                        className="text-red-400 hover:text-red-600 text-xs transition-colors"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

@@ -37,7 +37,9 @@ export interface PriceResolution {
   productId: string;
   originalPrice: number;
   resolvedPrice: number;
-  appliedProfileId: string;
+  appliedProfileId: string | null;
   appliedProfileName: string;
+  customerScope: "specific" | "group" | "all" | null;
+  profileScore: number | null;
   reason: string;
 }

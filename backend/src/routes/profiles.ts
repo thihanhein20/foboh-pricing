@@ -1,26 +1,31 @@
 import { Router, Request, Response } from "express";
-import { PricingProfile } from "../models/types";
+import { PricingProfile, PriceResolution } from "../models/types";
 import { resolvePrice } from "../services/resolver";
 import { validateProfile } from "../utils/validation";
+import {
+  getAllProfiles,
+  findProfileById,
+  addProfile,
+  updateProfileById,
+  removeProfileById,
+} from "../store/profileStore";
+import { products, customers } from "../data/seed";
 import { v4 as uuidv4 } from "uuid";
 
 const router: Router = Router();
 
-let profiles: PricingProfile[] = [];
-
 router.get("/", (req: Request, res: Response) => {
   try {
-    res.json(profiles);
+    res.json(getAllProfiles());
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: "Internal server error" });
   }
 });
 
 router.get("/:id", (req: Request, res: Response) => {
   try {
-    const profile: PricingProfile | undefined = profiles.find(
-      (p) => p.id === req.params.id,
-    );
+    const profile: PricingProfile | undefined = findProfileById(req.params.id as string);
 
     if (!profile) {
       res.status(404).json({ error: "Profile not found" });
@@ -29,6 +34,7 @@ router.get("/:id", (req: Request, res: Response) => {
 
     res.json(profile);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -56,24 +62,25 @@ router.post("/", (req: Request, res: Response) => {
       createdAt: new Date().toISOString(),
     };
 
-    profiles.push(newProfile);
+    addProfile(newProfile);
     res.status(201).json(newProfile);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: "Internal server error" });
   }
 });
 
-router.put("/:id", (req: Request, res: Response) => {
+router.patch("/:id", (req: Request, res: Response) => {
   try {
-    const index: number = profiles.findIndex((p) => p.id === req.params.id);
+    const existing: PricingProfile | undefined = findProfileById(req.params.id as string);
 
-    if (index === -1) {
+    if (!existing) {
       res.status(404).json({ error: "Profile not found" });
       return;
     }
 
     const validationError: string | null = validateProfile({
-      ...profiles[index],
+      ...existing,
       ...req.body,
     });
 
@@ -82,43 +89,74 @@ router.put("/:id", (req: Request, res: Response) => {
       return;
     }
 
-    profiles[index] = { ...profiles[index], ...req.body };
-    res.json(profiles[index]);
+    const updated = updateProfileById(req.params.id as string, req.body);
+    res.json(updated);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: "Internal server error" });
   }
 });
 
 router.delete("/:id", (req: Request, res: Response) => {
   try {
-    const index: number = profiles.findIndex((p) => p.id === req.params.id);
+    const removed: boolean = removeProfileById(req.params.id as string);
 
-    if (index === -1) {
+    if (!removed) {
       res.status(404).json({ error: "Profile not found" });
       return;
     }
 
-    profiles.splice(index, 1);
     res.status(204).send();
   } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.get("/resolve/:customerId", (req: Request, res: Response) => {
+  try {
+    const customerId = req.params.customerId as string;
+    const customer = customers.find((c) => c.id === customerId);
+
+    if (!customer) {
+      res.status(404).json({ error: "Customer not found" });
+      return;
+    }
+
+    const resolutions = products
+      .map((product) =>
+        resolvePrice(customerId, product.id, getAllProfiles(), products, customers),
+      )
+      .filter((r): r is PriceResolution => r !== null);
+
+    res.json(resolutions);
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ error: "Internal server error" });
   }
 });
 
 router.get("/resolve/:customerId/:productId", (req: Request, res: Response) => {
   try {
-    const customerId: string = req.params.customerId as string;
-    const productId: string = req.params.productId as string;
+    const customerId = req.params.customerId as string;
+    const productId = req.params.productId as string;
 
-    const resolution = resolvePrice(customerId, productId, profiles);
-
-    if (!resolution) {
-      res.status(404).json({ error: "Customer or product not found" });
+    const customer = customers.find((c) => c.id === customerId);
+    if (!customer) {
+      res.status(404).json({ error: "Customer not found" });
       return;
     }
 
+    const product = products.find((p) => p.id === productId);
+    if (!product) {
+      res.status(404).json({ error: "Product not found" });
+      return;
+    }
+
+    const resolution = resolvePrice(customerId, productId, getAllProfiles(), products, customers);
     res.json(resolution);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: "Internal server error" });
   }
 });

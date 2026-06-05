@@ -1,11 +1,7 @@
 import { Router, Request, Response } from "express";
+import { CREDENTIALS } from "../config/credentials";
 
 const router: Router = Router();
-
-const CREDENTIALS = {
-  email: "admin@foboh.com",
-  password: "foboh2026",
-};
 
 router.post("/login", (req: Request, res: Response) => {
   const { email, password } = req.body;

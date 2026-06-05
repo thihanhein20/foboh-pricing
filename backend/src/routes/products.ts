@@ -44,6 +44,7 @@ router.get("/", (req: Request, res: Response) => {
 
     res.json(filtered);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -61,6 +62,7 @@ router.get("/:id", (req: Request, res: Response) => {
 
     res.json(product);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: "Internal server error" });
   }
 });
