@@ -169,6 +169,8 @@ foboh-pricing/
 
 **Global error handler** — Kept in index.ts for simplicity. In a larger codebase this would be extracted into a dedicated middleware folder.
 
+**Deleted product references** — When `productScope` is `specific`, `productIds` are validated against the in-memory seed at write time, so a profile referencing a non-existent product is rejected on creation. This is an application-layer referential integrity check that stands in for a foreign key constraint, which a real database would enforce automatically. At resolve time, a profile whose stored `productIds` no longer match any product simply returns no match and is skipped — the resolver never crashes, it just treats the profile as non-applicable. This is the correct read-time behaviour: a stale profile should not block price resolution for other valid profiles.
+
 ## What I'd Do Next
 
 **Persistence** — Replace the in-memory store with PostgreSQL. The data models are already clean and typed so the migration would be straightforward.

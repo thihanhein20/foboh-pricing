@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import { getProducts, createProfile } from "../../services/api/api";
 import type { Product } from "../../types";
 import ProductFilter from "../../components/ProductFilter/ProductFilter";
@@ -63,7 +64,11 @@ export default function CreateProfile() {
       const data = await getProducts(activeFilters);
       setProducts(data);
     } catch (err) {
-      setError("Failed to load products");
+      setError(
+        axios.isAxiosError(err)
+          ? (err.response?.data?.error ?? "Failed to load products")
+          : "Failed to load products",
+      );
     } finally {
       setLoading(false);
     }
@@ -114,7 +119,11 @@ export default function CreateProfile() {
       });
       navigate("/pricing");
     } catch (err) {
-      setError("Failed to save profile");
+      setError(
+        axios.isAxiosError(err)
+          ? (err.response?.data?.error ?? "Failed to save profile")
+          : "Failed to save profile",
+      );
     } finally {
       setSaving(false);
     }
