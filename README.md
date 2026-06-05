@@ -101,21 +101,21 @@ Another engineer could implement this rule without asking questions:
 4. Take the first result
 5. Ensure the final price is never below zero
 
-**"All Products" over time** — a profile with `productScope: "all"` applies to every product that exists at resolve time, including products added after the profile was created. This is deliberate: a rule like "10% off all Wine" should cover new vintages automatically. Suppliers who want to exclude future products should use `specific` or `category` scope instead.
+**"All Products" over time** : a profile with `productScope: "all"` applies to every product that exists at resolve time, including products added after the profile was created. This is deliberate: a rule like "10% off all Wine" should cover new vintages automatically. Suppliers who want to exclude future products should use `specific` or `category` scope instead.
 
 ## API Endpoints
 
-| Method | Endpoint                                 | Description                            |
-| ------ | ---------------------------------------- | -------------------------------------- |
-| POST   | /auth/login                              | Login with credentials                 |
-| GET    | /products                                | Get all products with optional filters |
-| GET    | /products/:id                            | Get single product                     |
-| GET    | /profiles                                | Get all pricing profiles               |
-| GET    | /profiles/:id                            | Get single profile                     |
-| POST   | /profiles                                | Create pricing profile                 |
-| PATCH  | /profiles/:id                            | Update pricing profile                 |
-| DELETE | /profiles/:id                            | Delete pricing profile                 |
-| GET    | /profiles/resolve/:customerId            | Resolve prices for all products        |
+| Method | Endpoint                                 | Description                             |
+| ------ | ---------------------------------------- | --------------------------------------- |
+| POST   | /auth/login                              | Login with credentials                  |
+| GET    | /products                                | Get all products with optional filters  |
+| GET    | /products/:id                            | Get single product                      |
+| GET    | /profiles                                | Get all pricing profiles                |
+| GET    | /profiles/:id                            | Get single profile                      |
+| POST   | /profiles                                | Create pricing profile                  |
+| PATCH  | /profiles/:id                            | Update pricing profile                  |
+| DELETE | /profiles/:id                            | Delete pricing profile                  |
+| GET    | /profiles/resolve/:customerId            | Resolve prices for all products         |
 | GET    | /profiles/resolve/:customerId/:productId | Resolve effective price for one product |
 
 Full API documentation available at /api-docs
@@ -135,6 +135,7 @@ foboh-pricing/
 │       ├── models/         # TypeScript interfaces
 │       ├── routes/         # Express route handlers
 │       ├── services/       # Price resolver logic
+│       ├── store/          # In-memory profile store
 │       ├── swagger/        # OpenAPI YAML spec
 │       └── utils/          # Validation and logger
 │
@@ -147,48 +148,51 @@ foboh-pricing/
 │       │   ├── PricePreview/
 │       │   ├── ProductFilter/
 │       │   ├── ProductList/
+│       │   ├── ProfileForm/
 │       │   ├── ResolveModal/
 │       │   └── Sidebar/
 │       ├── pages/          # Page level components
+│       │   ├── ComingSoon/
 │       │   ├── Login/
 │       │   └── Pricing/
 │       ├── services/       # Axios instance and API calls
-│       └── types/          # Shared TypeScript types
+│       ├── types/          # Shared TypeScript types
+│       └── utils/          # Shared utility functions
 │
 └── transcripts/            # AI conversation transcripts
 ```
 
 ## Deliberate Tradeoffs
 
-**In-memory store** — Data resets on server restart. Acceptable for this challenge. In production this would use PostgreSQL with a proper schema.
+**In-memory store** : Data resets on server restart. Acceptable for this challenge. In production this would use PostgreSQL with a proper schema.
 
-**Hardcoded credentials** — Auth uses a single hardcoded user. In production this would use a user table with bcrypt hashed passwords and JWT tokens.
+**Hardcoded credentials** : Auth uses a single hardcoded user. In production this would use a user table with bcrypt hashed passwords and JWT tokens.
 
-**No pagination** — Product and profile lists load all records. Acceptable at this data scale. In production pagination would be added.
+**No pagination** : Product and profile lists load all records. Acceptable at this data scale. In production pagination would be added.
 
-**Swagger in separate YAML** — API documentation is kept in openapi.yaml following API-first design principles, keeping route handlers clean and allowing the spec to be used independently of the implementation.
+**Swagger in separate YAML** : API documentation is kept in openapi.yaml following API-first design principles, keeping route handlers clean and allowing the spec to be used independently of the implementation.
 
-**Validation in separate utility** — Profile validation uses a rules array pattern instead of chained if statements, making it easy to add or modify rules without touching the validation function itself.
+**Validation in separate utility** : Profile validation uses a rules array pattern instead of chained if statements, making it easy to add or modify rules without touching the validation function itself.
 
-**Global error handler** — Kept in index.ts for simplicity. In a larger codebase this would be extracted into a dedicated middleware folder.
+**Global error handler** : Kept in index.ts for simplicity. In a larger codebase this would be extracted into a dedicated middleware folder.
 
-**Deleted product references** — When `productScope` is `specific`, `productIds` are validated against the in-memory seed at write time, so a profile referencing a non-existent product is rejected on creation. This is an application-layer referential integrity check that stands in for a foreign key constraint, which a real database would enforce automatically. At resolve time, a profile whose stored `productIds` no longer match any product simply returns no match and is skipped — the resolver never crashes, it just treats the profile as non-applicable. This is the correct read-time behaviour: a stale profile should not block price resolution for other valid profiles.
+**Deleted product references** : When `productScope` is `specific`, `productIds` are validated against the in-memory seed at write time, so a profile referencing a non-existent product is rejected on creation. This is an application-layer referential integrity check that stands in for a foreign key constraint, which a real database would enforce automatically. At resolve time, a profile whose stored `productIds` no longer match any product simply returns no match and is skipped — the resolver never crashes, it just treats the profile as non-applicable. This is the correct read-time behaviour: a stale profile should not block price resolution for other valid profiles.
 
-**Score and savings tie** — When two profiles score equally on both customer and product specificity and produce identical savings, the resolver falls back to insertion order. This is deterministic within a session but could vary if profiles are loaded in a different order across restarts. In production, a stable third tiebreaker such as `createdAt` ascending (oldest rule wins as the established baseline) would eliminate this ambiguity.
+**Score and savings tie** : When two profiles score equally on both customer and product specificity and produce identical savings, the resolver falls back to insertion order. This is deterministic within a session but could vary if profiles are loaded in a different order across restarts. In production, a stable third tiebreaker such as `createdAt` ascending (oldest rule wins as the established baseline) would eliminate this ambiguity.
 
-**Product ID reuse** — If a product is removed and its ID later reused for a new product, any zombie profiles referencing the original would silently start matching the new one. In production this is prevented by foreign key constraints and soft deletes rather than hard deletion of referenced records.
+**Product ID reuse** : If a product is removed and its ID later reused for a new product, any zombie profiles referencing the original would silently start matching the new one. In production this is prevented by foreign key constraints and soft deletes rather than hard deletion of referenced records.
 
 ## What I'd Do Next
 
-**Persistence** — Replace the in-memory store with PostgreSQL. The data models are already clean and typed so the migration would be straightforward.
+**Persistence** : Replace the in-memory store with PostgreSQL. The data models are already clean and typed so the migration would be straightforward.
 
-**Structured logging** — Replace console.error with Winston, writing timestamped logs to a file with log levels for better observability in production.
+**Structured logging** : Replace console.error with Winston, writing timestamped logs to a file with log levels for better observability in production.
 
-**Testing** — Add unit tests for the price resolver covering all precedence rule scenarios, and integration tests for the API endpoints. The resolver is the most critical piece of business logic and deserves the most test coverage.
+**Testing** : Add unit tests for the price resolver covering all precedence rule scenarios, and integration tests for the API endpoints. The resolver is the most critical piece of business logic and deserves the most test coverage.
 
-**Auth improvements** — Implement JWT tokens with refresh token rotation and bcrypt password hashing. Add a proper user management flow.
+**Auth improvements** : Implement JWT tokens with refresh token rotation and bcrypt password hashing. Add a proper user management flow.
 
-**Real customer management** — Currently customers are hardcoded in seed data. In production customers would be managed via their own CRUD endpoints and linked to profiles via foreign keys.
+**Real customer management** : Currently customers are hardcoded in seed data. In production customers would be managed via their own CRUD endpoints and linked to profiles via foreign keys.
 
 ## AI Transcript
 
