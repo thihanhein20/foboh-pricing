@@ -39,6 +39,13 @@ Suppliers can create customer-specific pricing profiles, apply fixed or dynamic 
 - Node.js v18+
 - npm
 
+### Clone the repo
+
+```bash
+git clone https://github.com/thihanhein20/foboh-pricing.git
+cd foboh-pricing
+```
+
 ### Run the backend
 
 ```bash
@@ -67,11 +74,51 @@ email : admin@foboh.com
 password : foboh2026
 ```
 
+## Test Data
+
+### Seed profiles on startup
+
+The backend initialises with three overlapping profiles on startup so the resolver can be tested immediately without creating profiles manually.
+
+| Profile                                    | Customer                     | Products                              | Adjustment           |
+| ------------------------------------------ | ---------------------------- | ------------------------------------- | -------------------- |
+| 10% off all Wine for Independent Retailers | Group: Independent Retailers | All products                          | Dynamic 10% decrease |
+| $15 off Sparkling Wine for VIP             | Group: VIP                   | Category: Wine Sparkling              | Fixed $15 decrease   |
+| Custom price for Bondi Cellars             | Specific: Bondi Cellars (c1) | Specific: Koyama Methode Brut NV (p2) | Fixed $25 decrease   |
+
+### Available customers
+
+| ID  | Name             | Groups                      |
+| --- | ---------------- | --------------------------- |
+| c1  | Bondi Cellars    | Independent Retailers + VIP |
+| c2  | Sydney Wine Co   | Independent Retailers       |
+| c3  | Melbourne Drinks | VIP                         |
+
+### Available products
+
+| ID  | Product                        | Category          | Base Price |
+| --- | ------------------------------ | ----------------- | ---------- |
+| p1  | High Garden Pinot Noir 2021    | Wine Red          | $279.06    |
+| p2  | Koyama Methode Brut Nature NV  | Wine Sparkling    | $120.00    |
+| p3  | Koyama Riesling 2018           | Wine Port/Dessert | $215.04    |
+| p4  | Koyama Tussock Riesling 2019   | Wine White        | $215.04    |
+| p5  | Lacourte-Godbillon Brut Cru NV | Wine Sparkling    | $409.32    |
+
+### Expected resolver results
+
+| Customer         | Product                | Expected Price | Profile Applied                |
+| ---------------- | ---------------------- | -------------- | ------------------------------ |
+| Bondi Cellars    | Koyama Methode Brut NV | $95.00         | Custom price for Bondi Cellars |
+| Bondi Cellars    | High Garden Pinot Noir | $251.15        | 10% off all Wine               |
+| Sydney Wine Co   | Koyama Methode Brut NV | $108.00        | 10% off all Wine               |
+| Melbourne Drinks | Koyama Methode Brut NV | $105.00        | $15 off Sparkling Wine         |
+| Melbourne Drinks | High Garden Pinot Noir | $279.06        | No profile — base price        |
+
 ## Precedence Rule
 
 When multiple pricing profiles match a customer and product, the following rule applies:
 
-Customer specificity takes priority over product specificity because a direct deal with a named customer represents the most intentional commercial commitment — a custom price negotiated with Bondi Cellars directly should never be silently overridden by a group discount. Within the same customer level, a specific product scope beats a category, which beats all products, for the same reason: the more deliberate the targeting, the stronger the intent. When two profiles score equally on both dimensions, the customer receives the greater saving. This prevents accidental overcharges when overlapping rules of equal specificity exist, and reflects the commercial reality that a supplier would rather honour the better deal than produce an arbitrary outcome. Prices are never negative.
+Customer specificity takes priority over product specificity because a direct deal with a named customer represents the most intentional commercial commitment, a custom price negotiated with Bondi Cellars directly should never be silently overridden by a group discount. Within the same customer level, a specific product scope beats a category, which beats all products, for the same reason: the more deliberate the targeting, the stronger the intent. When two profiles score equally on both dimensions, the customer receives the greater saving. This prevents accidental overcharges when overlapping rules of equal specificity exist, and reflects the commercial reality that a supplier would rather honour the better deal than produce an arbitrary outcome. Prices are never negative.
 
 **Scoring:**
 
@@ -91,7 +138,7 @@ Bondi Cellars is in both Independent Retailers and VIP groups. They order Koyama
 | $15 off Sparkling Wine for VIP | group (2)      | category (2)  | 22    | Loses  |
 | 10% off all Wine               | group (2)      | all (1)       | 21    | Loses  |
 
-Bondi Cellars pays **$95.00**. Profile C wins because it is the most specific — one customer, one product.
+Bondi Cellars pays **$95.00**. Profile C wins because it is the most specific one customer, one product.
 
 Another engineer could implement this rule without asking questions:
 
@@ -120,8 +167,6 @@ Another engineer could implement this rule without asking questions:
 
 Full API documentation available at /api-docs
 
-## Folder Structure
-
 ## Project Structure
 
 ```
@@ -131,7 +176,7 @@ foboh-pricing/
 │   └── src/
 │       ├── config/         # Auth credentials config
 │       ├── data/           # Seed products and customers
-│       ├── middleware/     # JWT auth middleware
+│       ├── middleware/     # Auth middleware
 │       ├── models/         # TypeScript interfaces
 │       ├── routes/         # Express route handlers
 │       ├── services/       # Price resolver logic
