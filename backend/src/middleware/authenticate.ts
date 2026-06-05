@@ -1,9 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-
-const CREDENTIALS = {
-  email: "admin@foboh.com",
-  password: "foboh2026",
-};
+import { CREDENTIALS } from "../config/credentials";
 
 export function authenticate(
   req: Request,

@@ -4,7 +4,6 @@ import {
   Product,
   Customer,
 } from "../models/types";
-import { products, customers } from "../data/seed";
 
 // Precedence rule:
 // 1. Most specific customer scope wins (specific > group > all)
@@ -48,6 +47,7 @@ function getProfileScore(profile: PricingProfile): number {
 function profileMatchesCustomer(
   profile: PricingProfile,
   customerId: string,
+  customers: Customer[],
 ): boolean {
   const customer: Customer | undefined = customers.find(
     (c) => c.id === customerId,
@@ -66,6 +66,7 @@ function profileMatchesCustomer(
 function profileMatchesProduct(
   profile: PricingProfile,
   productId: string,
+  products: Product[],
 ): boolean {
   const product: Product | undefined = products.find((p) => p.id === productId);
   if (!product) return false;
@@ -83,6 +84,8 @@ export function resolvePrice(
   customerId: string,
   productId: string,
   profiles: PricingProfile[],
+  products: Product[],
+  customers: Customer[],
 ): PriceResolution | null {
   const product: Product | undefined = products.find((p) => p.id === productId);
   const customer: Customer | undefined = customers.find(
@@ -93,8 +96,8 @@ export function resolvePrice(
 
   const matchingProfiles: PricingProfile[] = profiles.filter(
     (p) =>
-      profileMatchesCustomer(p, customerId) &&
-      profileMatchesProduct(p, productId),
+      profileMatchesCustomer(p, customerId, customers) &&
+      profileMatchesProduct(p, productId, products),
   );
 
   if (matchingProfiles.length === 0) {
