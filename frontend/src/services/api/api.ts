@@ -53,7 +53,7 @@ export const updateProfile = async (
   id: string,
   profile: Partial<PricingProfile>,
 ): Promise<PricingProfile> => {
-  const response = await axiosInstance.put(`/profiles/${id}`, profile);
+  const response = await axiosInstance.patch(`/profiles/${id}`, profile);
   return response.data;
 };
 

@@ -71,7 +71,7 @@ password : foboh2026
 
 When multiple pricing profiles match a customer and product, the following rule applies:
 
-Customer specificity takes priority over product specificity. A profile targeting a specific customer beats one targeting a customer group, which beats one targeting all customers. Within the same customer specificity level, a profile targeting a specific product beats one targeting a category, which beats all products. If two profiles score equally on both dimensions, the one resulting in the greatest saving for the customer wins. Prices are never negative.
+Customer specificity takes priority over product specificity because a direct deal with a named customer represents the most intentional commercial commitment — a custom price negotiated with Bondi Cellars directly should never be silently overridden by a group discount. Within the same customer level, a specific product scope beats a category, which beats all products, for the same reason: the more deliberate the targeting, the stronger the intent. When two profiles score equally on both dimensions, the customer receives the greater saving. This prevents accidental overcharges when overlapping rules of equal specificity exist, and reflects the commercial reality that a supplier would rather honour the better deal than produce an arbitrary outcome. Prices are never negative.
 
 **Scoring:**
 
@@ -101,6 +101,8 @@ Another engineer could implement this rule without asking questions:
 4. Take the first result
 5. Ensure the final price is never below zero
 
+**"All Products" over time** — a profile with `productScope: "all"` applies to every product that exists at resolve time, including products added after the profile was created. This is deliberate: a rule like "10% off all Wine" should cover new vintages automatically. Suppliers who want to exclude future products should use `specific` or `category` scope instead.
+
 ## API Endpoints
 
 | Method | Endpoint                                 | Description                            |
@@ -111,7 +113,7 @@ Another engineer could implement this rule without asking questions:
 | GET    | /profiles                                | Get all pricing profiles               |
 | GET    | /profiles/:id                            | Get single profile                     |
 | POST   | /profiles                                | Create pricing profile                 |
-| PUT    | /profiles/:id                            | Update pricing profile                 |
+| PATCH  | /profiles/:id                            | Update pricing profile                 |
 | DELETE | /profiles/:id                            | Delete pricing profile                 |
 | GET    | /profiles/resolve/:customerId/:productId | Resolve effective price                |
 

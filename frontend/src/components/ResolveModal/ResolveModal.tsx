@@ -1,15 +1,11 @@
 import { useState } from "react";
+import axios from "axios";
 import { resolvePrice } from "../../services/api/api";
+import type { Product } from "../../types";
 
 interface Customer {
   id: string;
   name: string;
-}
-
-interface Product {
-  id: string;
-  title: string;
-  basePrice: number;
 }
 
 interface Resolution {
@@ -32,7 +28,7 @@ const customers: Customer[] = [
   { id: "c3", name: "Melbourne Drinks" },
 ];
 
-const products: Product[] = [
+const products: Pick<Product, "id" | "title" | "basePrice">[] = [
   { id: "p1", title: "High Garden Pinot Noir 2021", basePrice: 279.06 },
   { id: "p2", title: "Koyama Methode Brut Nature NV", basePrice: 120.0 },
   { id: "p3", title: "Koyama Riesling 2018", basePrice: 215.04 },
@@ -59,7 +55,11 @@ export default function ResolveModal({ onClose }: ResolveModalProps) {
       const data = await resolvePrice(customerId, productId);
       setResolution(data);
     } catch (err) {
-      setError("Failed to resolve price");
+      setError(
+        axios.isAxiosError(err)
+          ? (err.response?.data?.error ?? "Failed to resolve price")
+          : "Failed to resolve price",
+      );
     } finally {
       setLoading(false);
     }
@@ -72,12 +72,9 @@ export default function ResolveModal({ onClose }: ResolveModalProps) {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4">
-        {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
           <div>
-            <h2 className="text-base font-semibold text-gray-800">
-              Resolve Price
-            </h2>
+            <h2 className="text-base font-semibold text-gray-800">Resolve Price</h2>
             <p className="text-xs text-gray-400 mt-0.5">
               Find the effective price for a customer and product
             </p>
@@ -90,43 +87,26 @@ export default function ResolveModal({ onClose }: ResolveModalProps) {
           </button>
         </div>
 
-        {/* Body */}
         <div className="px-6 py-4 space-y-4">
-          {/* Customer */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Customer
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Customer</label>
             <select
               value={customerId}
-              onChange={(e) => {
-                setCustomerId(e.target.value);
-                setResolution(null);
-                setError("");
-              }}
+              onChange={(e) => { setCustomerId(e.target.value); setResolution(null); setError(""); }}
               className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white"
             >
               <option value="">Select a customer...</option>
               {customers.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
+                <option key={c.id} value={c.id}>{c.name}</option>
               ))}
             </select>
           </div>
 
-          {/* Product */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Product
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Product</label>
             <select
               value={productId}
-              onChange={(e) => {
-                setProductId(e.target.value);
-                setResolution(null);
-                setError("");
-              }}
+              onChange={(e) => { setProductId(e.target.value); setResolution(null); setError(""); }}
               className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white"
             >
               <option value="">Select a product...</option>
@@ -138,17 +118,14 @@ export default function ResolveModal({ onClose }: ResolveModalProps) {
             </select>
           </div>
 
-          {/* Error */}
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-lg">
               {error}
             </div>
           )}
 
-          {/* Result */}
           {resolution && (
             <div className="bg-teal-50 border border-teal-200 rounded-lg p-4 space-y-3">
-              {/* Prices */}
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs text-gray-400">Original Price</p>
@@ -165,7 +142,6 @@ export default function ResolveModal({ onClose }: ResolveModalProps) {
                 </div>
               </div>
 
-              {/* Saving */}
               {saving > 0 && (
                 <div className="bg-green-50 border border-green-200 rounded-lg px-3 py-2 text-center">
                   <p className="text-green-600 text-sm font-medium">
@@ -174,7 +150,6 @@ export default function ResolveModal({ onClose }: ResolveModalProps) {
                 </div>
               )}
 
-              {/* Profile applied */}
               <div className="border-t border-teal-200 pt-3">
                 <p className="text-xs text-gray-500 mb-1">Profile Applied</p>
                 <p className="text-sm font-medium text-gray-800">
@@ -182,18 +157,14 @@ export default function ResolveModal({ onClose }: ResolveModalProps) {
                 </p>
               </div>
 
-              {/* Reason */}
               <div>
                 <p className="text-xs text-gray-500 mb-1">Reason</p>
-                <p className="text-xs text-gray-600 leading-relaxed">
-                  {resolution.reason}
-                </p>
+                <p className="text-xs text-gray-600 leading-relaxed">{resolution.reason}</p>
               </div>
             </div>
           )}
         </div>
 
-        {/* Footer */}
         <div className="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
           <button
             onClick={onClose}

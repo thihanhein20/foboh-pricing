@@ -128,7 +128,7 @@ paths:
                   example: admin@foboh.com
                 password:
                   type: string
-                  example: foboh2024
+                  example: foboh2026
       responses:
         "200":
           description: Login successful
@@ -297,7 +297,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
-    put:
+    patch:
       summary: Update a pricing profile
       tags:
         - Profiles

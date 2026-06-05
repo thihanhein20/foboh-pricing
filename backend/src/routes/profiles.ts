@@ -18,6 +18,7 @@ router.get("/", (req: Request, res: Response) => {
   try {
     res.json(getAllProfiles());
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -33,6 +34,7 @@ router.get("/:id", (req: Request, res: Response) => {
 
     res.json(profile);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -63,11 +65,12 @@ router.post("/", (req: Request, res: Response) => {
     addProfile(newProfile);
     res.status(201).json(newProfile);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: "Internal server error" });
   }
 });
 
-router.put("/:id", (req: Request, res: Response) => {
+router.patch("/:id", (req: Request, res: Response) => {
   try {
     const existing: PricingProfile | undefined = findProfileById(req.params.id as string);
 
@@ -89,6 +92,7 @@ router.put("/:id", (req: Request, res: Response) => {
     const updated = updateProfileById(req.params.id as string, req.body);
     res.json(updated);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -104,6 +108,7 @@ router.delete("/:id", (req: Request, res: Response) => {
 
     res.status(204).send();
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -122,6 +127,7 @@ router.get("/resolve/:customerId/:productId", (req: Request, res: Response) => {
 
     res.json(resolution);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: "Internal server error" });
   }
 });
