@@ -372,6 +372,40 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
+  /profiles/resolve/{customerId}:
+    get:
+      summary: Resolve prices for all products for a given customer
+      tags:
+        - Profiles
+      parameters:
+        - in: path
+          name: customerId
+          required: true
+          schema:
+            type: string
+          description: Customer ID
+      responses:
+        "200":
+          description: List of resolved prices for every product
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PriceResolution"
+        "404":
+          description: Customer not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
   /profiles/resolve/{customerId}/{productId}:
     get:
       summary: Resolve the final price for a customer and product
