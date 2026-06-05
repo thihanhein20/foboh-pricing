@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import { PricingProfile } from "../models/types";
+import { PricingProfile, PriceResolution } from "../models/types";
 import { resolvePrice } from "../services/resolver";
 import { validateProfile } from "../utils/validation";
 import {
@@ -113,18 +113,47 @@ router.delete("/:id", (req: Request, res: Response) => {
   }
 });
 
-router.get("/resolve/:customerId/:productId", (req: Request, res: Response) => {
+router.get("/resolve/:customerId", (req: Request, res: Response) => {
   try {
-    const customerId: string = req.params.customerId as string;
-    const productId: string = req.params.productId as string;
+    const customerId = req.params.customerId as string;
+    const customer = customers.find((c) => c.id === customerId);
 
-    const resolution = resolvePrice(customerId, productId, getAllProfiles(), products, customers);
-
-    if (!resolution) {
-      res.status(404).json({ error: "Customer or product not found" });
+    if (!customer) {
+      res.status(404).json({ error: "Customer not found" });
       return;
     }
 
+    const resolutions = products
+      .map((product) =>
+        resolvePrice(customerId, product.id, getAllProfiles(), products, customers),
+      )
+      .filter((r): r is PriceResolution => r !== null);
+
+    res.json(resolutions);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.get("/resolve/:customerId/:productId", (req: Request, res: Response) => {
+  try {
+    const customerId = req.params.customerId as string;
+    const productId = req.params.productId as string;
+
+    const customer = customers.find((c) => c.id === customerId);
+    if (!customer) {
+      res.status(404).json({ error: "Customer not found" });
+      return;
+    }
+
+    const product = products.find((p) => p.id === productId);
+    if (!product) {
+      res.status(404).json({ error: "Product not found" });
+      return;
+    }
+
+    const resolution = resolvePrice(customerId, productId, getAllProfiles(), products, customers);
     res.json(resolution);
   } catch (err) {
     console.error(err);

@@ -43,3 +43,21 @@ export interface ProductFilters {
   segment: string;
   brand: string;
 }
+
+export interface Customer {
+  id: string;
+  name: string;
+  groups: string[];
+}
+
+export interface PriceResolution {
+  customerId: string;
+  productId: string;
+  originalPrice: number;
+  resolvedPrice: number;
+  appliedProfileId: string | null;
+  appliedProfileName: string;
+  customerScope: "specific" | "group" | "all" | null;
+  profileScore: number | null;
+  reason: string;
+}

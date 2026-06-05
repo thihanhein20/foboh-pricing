@@ -94,8 +94,13 @@ components:
           type: number
         appliedProfileId:
           type: string
+          nullable: true
         appliedProfileName:
           type: string
+        profileScore:
+          type: integer
+          nullable: true
+          description: "(customerScore × 10) + productScore. null when no profile matched."
         reason:
           type: string
 

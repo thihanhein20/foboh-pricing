@@ -75,6 +75,7 @@ function profileMatchesProduct(
     return profile.productIds?.includes(productId) ?? false;
   }
   if (profile.productScope === "category") {
+    // profile.category stores a subCategory value (e.g. "Wine Sparkling")
     return profile.category === product.subCategory;
   }
   return true;
@@ -106,25 +107,33 @@ export function resolvePrice(
       productId,
       originalPrice: product.basePrice,
       resolvedPrice: product.basePrice,
-      appliedProfileId: "none",
+      appliedProfileId: null,
       appliedProfileName: "No profile applied",
+      customerScope: null,
+      profileScore: null,
       reason: "No matching pricing profile found. Base price applied.",
     };
   }
 
-  const sorted: PricingProfile[] = matchingProfiles.sort((a, b) => {
+  const sorted: PricingProfile[] = [...matchingProfiles].sort((a, b) => {
     const scoreDiff: number = getProfileScore(b) - getProfileScore(a);
     if (scoreDiff !== 0) return scoreDiff;
 
-    const savingA: number =
+    // negative values mean a price increase — smallest increase wins
+    const discountA: number =
       product.basePrice - calculateNewPrice(product.basePrice, a);
-    const savingB: number =
+    const discountB: number =
       product.basePrice - calculateNewPrice(product.basePrice, b);
-    return savingB - savingA;
+    return discountB - discountA;
   });
 
   const winner: PricingProfile = sorted[0];
   const resolvedPrice: number = calculateNewPrice(product.basePrice, winner);
+
+  const reason =
+    winner.adjustmentValue === 0
+      ? `Profile "${winner.name}" matched but has zero adjustmentValue — price is unchanged. ${sorted.length} profile(s) matched.`
+      : `Profile "${winner.name}" applied. Customer scope: ${winner.customerScope}, Product scope: ${winner.productScope}. ${sorted.length} profile(s) matched, most specific won.`;
 
   return {
     customerId,
@@ -133,6 +142,8 @@ export function resolvePrice(
     resolvedPrice,
     appliedProfileId: winner.id,
     appliedProfileName: winner.name,
-    reason: `Profile "${winner.name}" applied. Customer scope: ${winner.customerScope}, Product scope: ${winner.productScope}. ${sorted.length} profile(s) matched, most specific won.`,
+    customerScope: winner.customerScope,
+    profileScore: getProfileScore(winner),
+    reason,
   };
 }

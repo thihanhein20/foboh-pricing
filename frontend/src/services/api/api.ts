@@ -67,3 +67,8 @@ export const resolvePrice = async (customerId: string, productId: string) => {
   );
   return response.data;
 };
+
+export const resolveAllForCustomer = async (customerId: string) => {
+  const response = await axiosInstance.get(`/profiles/resolve/${customerId}`);
+  return response.data;
+};
