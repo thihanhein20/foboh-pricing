@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login/Login";
 import Profiles from "./pages/Pricing/Profiles";
 import CreateProfile from "./pages/Pricing/CreateProfile";
+import EditProfile from "./pages/Pricing/EditProfile";
 import Layout from "./components/Layout/Layout";
 import axiosInstance from "./services/axios";
 import ComingSoon from "./pages/ComingSoon/ComingSoon";
@@ -65,6 +66,7 @@ function App() {
           <Route path="settings" element={<ComingSoon />} />
           <Route path="pricing" element={<Profiles />} />
           <Route path="pricing/create" element={<CreateProfile />} />
+          <Route path="pricing/edit/:id" element={<EditProfile />} />
         </Route>
         <Route path="*" element={<Navigate to="/login" />} />
       </Routes>

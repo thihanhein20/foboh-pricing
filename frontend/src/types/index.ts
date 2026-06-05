@@ -22,3 +22,24 @@ export interface Product {
   segment: string;
   basePrice: number;
 }
+
+export interface ProfileFormValues {
+  name: string;
+  adjustmentType: "fixed" | "dynamic";
+  adjustmentDirection: "increase" | "decrease";
+  adjustmentValue: number;
+  productScope: "specific" | "category" | "all";
+  productIds?: string[];
+  category?: string;
+  customerScope: "specific" | "group" | "all";
+  customerId?: string;
+  customerGroup?: string;
+}
+
+export interface ProductFilters {
+  title: string;
+  sku: string;
+  subCategory: string;
+  segment: string;
+  brand: string;
+}
