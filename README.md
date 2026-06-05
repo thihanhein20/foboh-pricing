@@ -115,7 +115,8 @@ Another engineer could implement this rule without asking questions:
 | POST   | /profiles                                | Create pricing profile                 |
 | PATCH  | /profiles/:id                            | Update pricing profile                 |
 | DELETE | /profiles/:id                            | Delete pricing profile                 |
-| GET    | /profiles/resolve/:customerId/:productId | Resolve effective price                |
+| GET    | /profiles/resolve/:customerId            | Resolve prices for all products        |
+| GET    | /profiles/resolve/:customerId/:productId | Resolve effective price for one product |
 
 Full API documentation available at /api-docs
 
