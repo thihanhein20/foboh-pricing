@@ -7,7 +7,7 @@ export const products: Product[] = [
     sku: "HGVPIN21",
     brand: "High Garden",
     subCategory: "Wine Red",
-    segment: "Wine",
+    segment: "Red",
     basePrice: 279.06,
   },
   {
@@ -16,7 +16,7 @@ export const products: Product[] = [
     sku: "KOYBRUNNV6",
     brand: "Koyama Wines",
     subCategory: "Wine Sparkling",
-    segment: "Wine",
+    segment: "Sparkling",
     basePrice: 120.0,
   },
   {
@@ -25,7 +25,7 @@ export const products: Product[] = [
     sku: "KOYNR1837",
     brand: "Koyama Wines",
     subCategory: "Wine Port/Dessert",
-    segment: "Wine",
+    segment: "Port/Dessert",
     basePrice: 215.04,
   },
   {
@@ -34,7 +34,7 @@ export const products: Product[] = [
     sku: "KOYRIE19",
     brand: "Koyama Wines",
     subCategory: "Wine White",
-    segment: "Wine",
+    segment: "White",
     basePrice: 215.04,
   },
   {
@@ -43,7 +43,7 @@ export const products: Product[] = [
     sku: "LACBNATNV6",
     brand: "Lacourte-Godbillon",
     subCategory: "Wine Sparkling",
-    segment: "Wine",
+    segment: "Sparkling",
     basePrice: 409.32,
   },
 ];
