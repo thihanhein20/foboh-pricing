@@ -7,7 +7,7 @@ info:
 servers:
   - url: http://localhost:3000
     description: Local server
-  - url: https://your-railway-url.railway.app
+  - url: https://api-foboh-pricing.up.railway.app
     description: Production server
 
 components:
